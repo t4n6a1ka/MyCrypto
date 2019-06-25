@@ -6,7 +6,7 @@ import { notificationsActions } from 'features/notifications';
 import { isKeystorePassRequired } from 'libs/wallet';
 import React, { Component } from 'react';
 import translate, { translateRaw } from 'translations';
-import { ISendState, ITxFields } from '../../types';
+import { ITxFields, SendState } from '../../types';
 import './Keystore.scss';
 
 //Test Transaction
@@ -23,7 +23,7 @@ const transaction = {
 };
 
 interface Props {
-  stateValues: ISendState;
+  stateValues: SendState;
   transactionFields: ITxFields;
   wallet: any;
   isWalletPending: boolean;

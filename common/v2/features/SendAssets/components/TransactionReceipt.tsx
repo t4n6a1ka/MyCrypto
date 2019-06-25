@@ -1,16 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { Address, Button, Copyable } from '@mycrypto/ui';
-
-import { Amount } from 'v2/components';
-import { ISendState } from '../types';
-import './TransactionReceipt.scss';
-
 // Legacy
 import sentIcon from 'common/assets/images/icn-sent.svg';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Amount } from 'v2/components';
+import { SendState } from '../types';
+import './TransactionReceipt.scss';
 
 interface Props {
-  stateValues: ISendState;
+  stateValues: SendState;
   // onReset(): void; // RE-ADD RESET
 }
 

@@ -3,51 +3,141 @@ import { ENSStatus } from 'components/AddressFieldFactory/AddressInputFactory';
 import { WhenQueryExists } from 'components/renderCbs';
 import { Field, FieldProps, Form, Formik } from 'formik';
 import React, { useContext } from 'react';
-import { DeepPartial } from 'shared/types/util';
 import translate, { translateRaw } from 'translations';
 import { fetchGasPriceEstimates, getNonce, getResolvedENSAddress } from 'v2';
 import { InlineErrorMsg } from 'v2/components';
 import { getGasEstimate } from 'v2/features/Gas';
-import { getAssetByUUID, getNetworkByName } from 'v2/libs';
+import { getAssetByUUID, getNetworkByName, getQueryParamWithKey, getQueryTransactionData, isAdvancedQueryTransaction, isQueryTransaction, queryObject } from 'v2/libs';
 import { processFormDataToTx } from 'v2/libs/transaction/process';
 import { AccountContext } from 'v2/providers';
-import {
-  Asset,
-  AssetBalanceObject,
-  ExtendedAccount,
-  ExtendedAccount as IExtendedAccount
-} from 'v2/services';
+import { Asset, AssetBalanceObject, ExtendedAccount, ExtendedAccount as IExtendedAccount } from 'v2/services';
 // import { processFormDataToTx } from 'v2/libs/transaction/process';
 import { IAsset, TSymbol } from 'v2/types';
 import * as Yup from 'yup';
-import { ISendState, ITxFields } from '../types';
+import { ITxFields, SendState } from '../types';
 import TransactionFeeDisplay from './displays/TransactionFeeDisplay';
 import TransactionValueDisplay from './displays/TransactionValuesDisplay';
-import {
-  AccountDropdown,
-  AssetDropdown,
-  DataField,
-  EthAddressField,
-  GasLimitField,
-  GasPriceField,
-  GasPriceSlider,
-  NonceField
-} from './fields';
+import { AccountDropdown, AssetDropdown, DataField, EthAddressField, GasLimitField, GasPriceField, GasPriceSlider, NonceField } from './fields';
 import './SendAssetsForm.scss';
-import {
-  validateDataField,
-  validateGasLimitField,
-  validateGasPriceField,
-  validateNonceField
-} from './validators/validators';
+import { validateDataField, validateGasLimitField, validateGasPriceField, validateNonceField } from './validators/validators';
 
 interface Props {
-  stateValues: ISendState;
-  transactionFields: ITxFields;
+  stateValues: SendState;
   onNext(): void;
   onSubmit(transactionFields: ITxFields): void;
-  updateState(state: DeepPartial<ISendState>): void;
+  updateState(state: SendState): void;
 }
+
+const getInitialState = () => {
+  if (isQueryTransaction(location.search)) {
+    const params: queryObject = getQueryTransactionData(location.search);
+    return {
+      step: 0,
+      transactionFields: {
+        account: {
+          label: '',
+          address: '',
+          network: '',
+          assets: [],
+          wallet: undefined,
+          balance: '0',
+          transactions: [],
+          dPath: '',
+          uuid: '',
+          timestamp: 0
+        },
+        recipientAddress: getQueryParamWithKey(params, 'to') || '',
+        amount: getQueryParamWithKey(params, 'value') || '',
+        asset:
+          getQueryParamWithKey(params, 'sendmode') === 'token'
+            ? ({ symbol: getQueryParamWithKey(params, 'tokensymbol') || 'DAI' } as IAsset)
+            : undefined,
+        gasPriceSlider: '20',
+        gasPriceField: getQueryParamWithKey(params, 'gasprice') || '20',
+        gasLimitField:
+          getQueryParamWithKey(params, 'gaslimit') ||
+          getQueryParamWithKey(params, 'gas') ||
+          '21000',
+        gasLimitEstimated: '21000',
+        nonceEstimated: '0',
+        nonceField: '0',
+        data: getQueryParamWithKey(params, 'data') || '',
+        isAdvancedTransaction: isAdvancedQueryTransaction(location.search) || false, // Used to indicate whether transaction fee slider should be displayed and if Advanced Tab fields should be displayed.
+        isGasLimitManual: false, // Used to indicate that user has un-clicked the user-input gas-limit checkbox.
+        accountType: undefined,
+        gasEstimates: {
+          fastest: 20,
+          fast: 18,
+          standard: 12,
+          isDefault: false,
+          safeLow: 4,
+          time: Date.now(),
+          chainId: 1
+        },
+        network: undefined,
+        resolvedNSAddress: '', // Address returned when attempting to resolve an ENS/RNS address.
+        isResolvingNSName: false // Used to indicate recipient-address is ENS name that is currently attempting to be resolved.
+      },
+      isFetchingAccountValue: false, // Used to indicate looking up user's balance of currently-selected asset.
+      isResolvingNSName: false, // Used to indicate recipient-address is ENS name that is currently attempting to be resolved.
+      isAddressLabelValid: false, // Used to indicate if recipient-address is found in the address book.
+      isFetchingAssetPricing: false, // Used to indicate fetching CC rates for currently-selected asset.
+      isEstimatingGasLimit: false, // Used to indicate that gas limit is being estimated using `eth_estimateGas` jsonrpc call.
+      resolvedNSAddress: '', // Address returned when attempting to resolve an ENS/RNS address.
+      recipientAddressLabel: '', //  Recipient-address label found in address book.
+      asset: undefined,
+      assetType: getQueryParamWithKey(params, 'sendmode') === 'token' ? 'erc20' : 'base',
+      signedTransaction: ''
+    };
+  } else {
+    return {
+      step: 0,
+      transactionFields: {
+        account: {
+          label: '',
+          address: '',
+          network: '',
+          assets: [],
+          wallet: undefined,
+          balance: '0',
+          transactions: [],
+          dPath: '',
+          uuid: '',
+          timestamp: 0
+        },
+        recipientAddress: '',
+        amount: '', // Really should be undefined, but Formik recognizes empty strings.
+        asset: undefined,
+        gasPriceSlider: '20',
+        gasPriceField: '20',
+        gasLimitField: '21000',
+        gasLimitEstimated: '21000',
+        nonceEstimated: '0',
+        nonceField: '0',
+        data: '',
+        isAdvancedTransaction: false, // Used to indicate whether transaction fee slider should be displayed and if Advanced Tab fields should be displayed.
+        isGasLimitManual: false,
+        accountType: undefined,
+        gasEstimates: {
+          fastest: 20,
+          fast: 18,
+          standard: 12,
+          isDefault: false,
+          safeLow: 4,
+          time: Date.now(),
+          chainId: 1
+        },
+        network: undefined
+      },
+
+      resolvedNSAddress: '', // Address returned when attempting to resolve an ENS/RNS address.
+      recipientAddressLabel: '', //  Recipient-address label found in address book.
+      asset: undefined,
+      assetType: 'base', // Type of asset selected. Directs how rawTransactionValues field are handled when formatting transaction.
+      signedTransaction: ''
+    };
+  }
+};
 
 const QueryWarning: React.SFC<{}> = () => (
   <WhenQueryExists
@@ -66,12 +156,7 @@ const SendAssetsSchema = Yup.object().shape({
     .max(1001, 'Above the balance')
 });
 
-export default function SendAssetsForm({
-  transactionFields,
-  onNext,
-  onSubmit,
-  updateState
-}: Props) {
+export default function SendAssetsForm({ onNext, onSubmit }: Props) {
   const { accounts } = useContext(AccountContext);
   // @TODO:SEND change the data structure to get an object
 
@@ -87,7 +172,7 @@ export default function SendAssetsForm({
   return (
     <div className="SendAssetsForm">
       <Formik
-        initialValues={transactionFields}
+        initialValues={getInitialState()}
         validationSchema={SendAssetsSchema}
         onSubmit={(fields: ITxFields) => {
           onSubmit(fields);
@@ -205,34 +290,12 @@ export default function SendAssetsForm({
                       onSelect={(option: IExtendedAccount) => {
                         form.setFieldValue(field.name, option);
                         handleNonceEstimate(option);
-                        updateState({ transactionFields: { account: option } });
                         handleGasEstimate();
                       }}
                     />
                   )}
                 />
               </fieldset>
-              {/* Recipient Address */}
-              {/* <fieldset className="SendAssetsForm-fieldset">
-                <div className="input-group-header">{translate('SEND_ADDR')}</div> */}
-              {/* <RecipientAddressField
-                  handleChange={(e: FormEvent<HTMLInputElement>) => {
-                    estimateGasHandler();
-                    updateState({
-                      transactionFields: { recipientAddress: e.currentTarget.value }
-                    });
-                    handleChange(e);
-                  }}
-                />
-              </fieldset>
-              {/* Amount */}
-              {/* <AmountField
-                handleChange={(e: FormEvent<HTMLInputElement>) => {
-                  estimateGasHandler();
-                  updateState({ transactionFields: { amount: e.currentTarget.value } });
-                  handleChange(e);
-                }}
-              /> */}
               <fieldset className="SendAssetsForm-fieldset">
                 <label htmlFor="recipientAddress" className="input-group-header">
                   {translate('SEND_ADDR')}
@@ -241,7 +304,7 @@ export default function SendAssetsForm({
                   handleENSResolve={handleENSResolve}
                   error={errors.recipientAddress}
                   touched={touched.recipientAddress}
-                  values={values}
+                  values={values.}
                   fieldName="recipientAddress"
                   placeholder="Enter an Address or Contact"
                 />
@@ -295,7 +358,6 @@ export default function SendAssetsForm({
                     transactionFieldValues={values}
                     handleChange={(e: string) => {
                       handleGasEstimate();
-                      updateState({ transactionFields: { gasPriceSlider: e } });
                       handleChange(e);
                     }}
                     gasPrice={values.gasPriceSlider}

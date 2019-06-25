@@ -9,11 +9,11 @@ import { getNetworkByChainId } from 'v2';
 import { Amount } from 'v2/components';
 import { allProviders } from 'v2/config/networks/globalProvider';
 import { AddressBookContext } from 'v2/providers';
-import { ISendState } from '../types';
+import { SendState } from '../types';
 import './ConfirmTransaction.scss';
 
 interface Props {
-  stateValues: ISendState;
+  stateValues: SendState;
   onNext(): void;
 }
 

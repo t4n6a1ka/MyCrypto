@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { DeepPartial } from 'shared/types/util';
 import { WalletName } from 'v2/config/data';
-import { ISendState, ITxFields } from '../types';
+import { ITxFields, SendState } from '../types';
 import './SignTransaction.scss';
 import {
   SignTransactionKeystore,
@@ -15,11 +15,11 @@ import {
 type WalletType = WalletName;
 
 interface Props {
-  stateValues: ISendState;
+  stateValues: SendState;
   transactionFields: ITxFields;
   onNext(): void;
   onSubmit(transactionFields: ITxFields): void;
-  updateState(state: DeepPartial<ISendState>): void;
+  updateState(state: DeepPartial<SendState>): void;
 }
 
 export default class SignTransaction extends Component<Props> {
@@ -36,7 +36,7 @@ export default class SignTransaction extends Component<Props> {
             stateValues={stateValues}
             transactionFields={transactionFields}
             onNext={receipt => {
-              const nextState: DeepPartial<ISendState> = {
+              const nextState: DeepPartial<SendState> = {
                 transactionFields: { account: { transactions: [{ txHash: receipt.hash }] } }
               };
               updateState(nextState);
@@ -57,7 +57,7 @@ export default class SignTransaction extends Component<Props> {
             stateValues={stateValues}
             transactionFields={transactionFields}
             onNext={signedTransaction => {
-              const nextState: DeepPartial<ISendState> = {
+              const nextState: DeepPartial<SendState> = {
                 signedTransaction
               };
 
