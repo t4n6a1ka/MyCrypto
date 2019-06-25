@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 function WalletBreakdown() {
   const { accounts } = useContext(AccountContext);
   const { settings, updateSettingsAccounts } = useContext(SettingsContext);
+
   const balances: any[] = [];
   const currentAccounts: ExtendedAccount[] = getCurrentsFromContext(
     accounts,
@@ -41,11 +42,11 @@ function WalletBreakdown() {
         parseFloat(balanceToUpdate.amount) + parseFloat(getBalanceFromAccount(account))
       ).toFixed(4);
     }
-    balances.push({
-      asset: 'Other Tokens',
-      amount: <Link to="/dashboard">View Details</Link>,
-      value: '$0'
-    });
+  });
+  balances.push({
+    asset: 'Other Tokens',
+    amount: <Link to="/dashboard">View Details</Link>,
+    value: '$0'
   });
 
   return (
@@ -91,8 +92,8 @@ function WalletBreakdown() {
             <img className="WalletBreakdown-panel-more" src={moreIcon} alt="More" />
           </div>
           <div className="WalletBreakdown-panel-balances">
-            {balances.map(({ asset, amount, value }) => (
-              <div key={asset} className="WalletBreakdown-panel-balances-balance">
+            {balances.map(({ asset, amount, value }, idx) => (
+              <div key={idx} className="WalletBreakdown-panel-balances-balance">
                 <div className="WalletBreakdown-panel-balances-balance-asset">
                   <Typography className="WalletBreakdown-panel-balances-balance-asset-name">
                     {asset}
