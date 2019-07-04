@@ -1,11 +1,10 @@
 import React from 'react';
 import { OptionComponentProps } from 'react-select';
-
 import { translateRaw } from 'translations';
-import { ExtendedAccount as IExtendedAccount, ExtendedAccount, Network } from 'v2/services';
 import { AccountSummary, Divider, Dropdown } from 'v2/components';
-import { ITxFields } from '../../types';
 import { getNetworkByName } from 'v2/libs/networks/networks';
+import { ExtendedAccount, ExtendedAccount as IExtendedAccount, Network } from 'v2/services';
+import { TxFields } from '../../types';
 
 // Option item displayed in Dropdown menu. Props are passed by react-select Select.
 // To know: Select needs to receive a class in order to attach refs https://github.com/JedWatson/react-select/issues/2459
@@ -63,7 +62,7 @@ interface IAccountDropdown {
   accounts: IExtendedAccount[];
   name: string;
   value: IExtendedAccount;
-  values: ITxFields;
+  values: TxFields;
   onSelect(option: IExtendedAccount): void;
 }
 

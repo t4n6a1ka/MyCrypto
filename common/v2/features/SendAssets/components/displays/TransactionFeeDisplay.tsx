@@ -1,11 +1,11 @@
-import { ITxFields } from '../../types';
-import { gasPriceToBase, fromWei } from 'v2/libs/units';
 import BN from 'bn.js';
-import { getBaseAssetSymbolByNetwork } from 'v2/libs/networks/networks';
 import React from 'react';
+import { getBaseAssetSymbolByNetwork } from 'v2/libs/networks/networks';
+import { fromWei, gasPriceToBase } from 'v2/libs/units';
+import { TxFields } from '../../types';
 
 interface Props {
-  values: ITxFields;
+  values: TxFields;
   fiatAsset: { fiat: string; value: string; symbol: string };
 }
 

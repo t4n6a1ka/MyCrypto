@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { DeepPartial } from 'shared/types/util';
 import { WalletName } from 'v2/config/data';
-import { ITxFields, SendState } from '../types';
+import { ITxFields } from '../types';
 import './SignTransaction.scss';
 import {
   SignTransactionKeystore,
@@ -15,9 +15,10 @@ import {
 type WalletType = WalletName;
 
 interface Props {
-  stateValues: SendState;
+  stateValues: SendStTxFields;
   transactionFields: ITxFields;
   onNext(): void;
+  TxFields;
   onSubmit(transactionFields: ITxFields): void;
   updateState(state: DeepPartial<SendState>): void;
 }

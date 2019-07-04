@@ -3,7 +3,7 @@ import { ethers, utils } from 'ethers';
 import { Web3Provider } from 'ethers/providers/web3-provider';
 import React, { Component } from 'react';
 import { getNetworkByChainId } from 'v2';
-import { ITxFields, SendState } from '../../types';
+import { SendState, TxFields } from '../../types';
 import './MetaMask.scss';
 
 //Test Transaction
@@ -29,7 +29,7 @@ declare global {
 }
 interface Props {
   stateValues: SendState;
-  transactionFields: ITxFields;
+  transactionFields: TxFields;
   onNext(receipt: ethers.providers.TransactionResponse): void;
   // updateState(state: DeepPartial<ISendState>): void;
 }

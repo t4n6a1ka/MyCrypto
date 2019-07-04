@@ -30,21 +30,27 @@ const web3Steps = [
 export class SendAssets extends Component<RouteComponentProps<{}>, SendState> {
   public state: SendState = {
     step: 0,
+    transactionData: {
+      to: '',
+      gasLimit: '',
+      gasPrice: '',
+      nonce: '',
+      data: '',
+      value: '',
+      chainId: undefined
+    },
     senderAddress: '',
     senderAddressLabel: '',
-    senderWalletBalance: '',
-    dPath: undefined,
+    senderWalletBalanceBase: '',
+    senderWalletBalanceToken: '',
+    senderAccountType: '',
+    senderNetwork: '',
+    assetType: undefined,
+    dPath: '',
     recipientAddress: '',
     recipientAddressLabel: '',
     recipientResolvedNSAddress: '',
-    asset: undefined,
-    amount: '',
-    nonce: '',
-    data: '',
-    senderAccountType: undefined,
-    network: undefined,
-    gasPrice: '',
-    gasLimit: '',
+    serializedTransaction: '',
     signedTransaction: '',
     txHash: ''
   };
